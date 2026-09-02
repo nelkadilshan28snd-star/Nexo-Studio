@@ -334,7 +334,7 @@ function App() {
               boxShadow: '0 4px 20px rgba(6, 182, 212, 0.4)',
               border: '1px solid rgba(255,255,255,0.2)'
             }}>
-              <Cpu size={22} color="#fff" />
+              <img src="/logos.png" alt="Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontWeight: '900', fontSize: '16px', color: isDarkMode ? '#f8fafc' : '#0f172a', letterSpacing: '1px', lineHeight: '1.2' }}>
