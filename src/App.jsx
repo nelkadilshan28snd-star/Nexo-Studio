@@ -1,50 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, Square, RotateCcw, Moon, Sun, Download, Trash2, 
-  CheckCircle2, XCircle, AlertCircle, Eye, FileText, Cpu, Clock 
+  CheckCircle2, XCircle, AlertCircle, Eye, FileText, Clock 
 } from 'lucide-react';
 
 export default function App() {
-  // Theme state
   const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Configuration states
   const [url, setUrl] = useState('');
   const [method, setMethod] = useState('GET');
   const [headers, setHeaders] = useState('{\n  "Content-Type": "application/json"\n}');
   const [csvData, setCsvData] = useState('id,name\n1,Alice\n2,Bob\n3,Charlie');
   
-  // Execution states
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [results, setResults] = useState([]);
   const [history, setHistory] = useState([]);
-  
-  // Inspection modal/panel state
   const [selectedItem, setSelectedItem] = useState(null);
 
-  // Abort controller ref for stopping execution
   const abortControllerRef = useRef(null);
 
-  // Load history from localStorage on mount
   useEffect(() => {
     const savedHistory = localStorage.getItem('nexo_bulk_history');
     if (savedHistory) {
       try {
         setHistory(JSON.parse(savedHistory));
-      } catch (e) {
-        console.error('Failed to parse history', e);
-      }
+      } catch (e) {}
     }
   }, []);
 
-  // Save history to localStorage
   const saveHistoryToStorage = (newHistory) => {
     setHistory(newHistory);
     localStorage.setItem('nexo_bulk_history', JSON.stringify(newHistory));
   };
 
-  // Helper to parse CSV text into array of objects
   const parseCSV = (text) => {
     const lines = text.trim().split('\n');
     if (lines.length < 2) return [];
@@ -61,7 +49,6 @@ export default function App() {
     return rows;
   };
 
-  // Replace variables in URL/Headers/Body like {{id}} or {{name}}
   const interpolate = (template, data) => {
     let result = template;
     Object.keys(data).forEach(key => {
@@ -71,7 +58,6 @@ export default function App() {
     return result;
   };
 
-  // Execute a single iteration row
   const executeRow = async (row, parsedHeaders, endpointUrl, methodType) => {
     const startTime = performance.now();
     try {
@@ -79,9 +65,7 @@ export default function App() {
       let parsedHeadersObj = {};
       try {
         parsedHeadersObj = JSON.parse(interpolate(headers, row));
-      } catch (e) {
-        // ignore header parse error for simple runs
-      }
+      } catch (e) {}
 
       const options = {
         method: methodType,
@@ -125,7 +109,6 @@ export default function App() {
     }
   };
 
-  // Start Bulk Run
   const handleStartBulkRun = async () => {
     const rows = parseCSV(csvData);
     if (rows.length === 0) {
@@ -159,7 +142,6 @@ export default function App() {
 
     setIsRunning(false);
 
-    // Save batch to history
     const batchSummary = {
       id: Date.now(),
       timestamp: new Date().toLocaleTimeString(),
@@ -173,7 +155,6 @@ export default function App() {
     saveHistoryToStorage([batchSummary, ...history]);
   };
 
-  // Stop Bulk Run
   const handleStopBulkRun = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -181,7 +162,6 @@ export default function App() {
     setIsRunning(false);
   };
 
-  // Retry a single failed iteration item
   const handleRetrySingle = async (item, index) => {
     let parsedHeaders = {};
     try {
@@ -209,8 +189,8 @@ export default function App() {
       {/* Header */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 32px', borderBottom: `1px solid ${themeStyles.border}`, backgroundColor: themeStyles.cardBg }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '8px', borderRadius: '12px', background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src="/logos.png" alt="Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
+          <div style={{ padding: '6px', borderRadius: '12px', background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src="/logos.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -229,14 +209,14 @@ export default function App() {
       </header>
 
       {/* Main Content Container */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
         
-        {/* Left Column: Config Panel */}
+        {/* Left Column: Config & History */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Request Config Card */}
           <div style={{ backgroundColor: themeStyles.cardBg, border: `1px solid ${themeStyles.border}`, borderRadius: '16px', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700' }}>API Request Configuration</h3>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700', textAlign: 'center' }}>API Request Configuration</h3>
             
             <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
               <select 
@@ -259,20 +239,20 @@ export default function App() {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: themeStyles.subText }}>Headers (JSON)</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: themeStyles.subText, textAlign: 'center' }}>Headers (JSON)</label>
                 <textarea 
-                  rows={5}
+                  rows={4}
                   value={headers}
                   onChange={(e) => setHeaders(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${themeStyles.border}`, backgroundColor: themeStyles.inputBg, color: themeStyles.text, fontFamily: 'monospace', fontSize: '12px', boxSizing: 'border-box' }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: themeStyles.subText }}>CSV Data Input</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: themeStyles.subText, textAlign: 'center' }}>CSV Data Input</label>
                 <textarea 
-                  rows={5}
+                  rows={4}
                   value={csvData}
                   onChange={(e) => setCsvData(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${themeStyles.border}`, backgroundColor: themeStyles.inputBg, color: themeStyles.text, fontFamily: 'monospace', fontSize: '12px', boxSizing: 'border-box' }}
@@ -281,31 +261,29 @@ export default function App() {
             </div>
 
             {/* Execution Controls */}
-            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-              {!isRunning ? (
-                <button 
-                  onClick={handleStartBulkRun}
-                  style={{ flex: 1, backgroundColor: '#06b6d4', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
-                >
-                  <Play size={18} /> Start Bulk Execution
-                </button>
-              ) : (
-                <button 
-                  onClick={handleStopBulkRun}
-                  style={{ flex: 1, backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
-                >
-                  <Square size={18} /> Stop Execution ({progress.current}/{progress.total})
-                </button>
-              )}
-            </div>
+            {!isRunning ? (
+              <button 
+                onClick={handleStartBulkRun}
+                style={{ width: '100%', backgroundColor: '#06b6d4', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+              >
+                <Play size={18} /> Start Bulk Execution
+              </button>
+            ) : (
+              <button 
+                onClick={handleStopBulkRun}
+                style={{ width: '100%', backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+              >
+                <Square size={18} /> Stop Execution ({progress.current}/{progress.total})
+              </button>
+            )}
           </div>
 
           {/* History Card */}
           <div style={{ backgroundColor: themeStyles.cardBg, border: `1px solid ${themeStyles.border}`, borderRadius: '16px', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-            <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '700' }}>Execution History</h3>
-            <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '700', textAlign: 'center' }}>Execution History</h3>
+            <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {history.length === 0 ? (
-                <p style={{ fontSize: '13px', color: themeStyles.subText, margin: 0 }}>No past executions found.</p>
+                <p style={{ fontSize: '13px', color: themeStyles.subText, margin: 0, textAlign: 'center' }}>No past executions found.</p>
               ) : (
                 history.map((item) => (
                   <div 
@@ -329,20 +307,11 @@ export default function App() {
 
         </div>
 
-        {/* Right Column: Results & Inspector Panel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
-          <div style={{ backgroundColor: themeStyles.cardBg, border: `1px solid ${themeStyles.border}`, borderRadius: '16px', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', height: '600px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700' }}>Live Execution Results</h3>
-              {results.length > 0 && (
-                <span style={{ fontSize: '12px', color: themeStyles.subText }}>
-                  Completed: {results.length} rows
-                </span>
-              )}
-            </div>
+        {/* Right Column: Results Panel */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ backgroundColor: themeStyles.cardBg, border: `1px solid ${themeStyles.border}`, borderRadius: '16px', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', height: '540px' }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700', textAlign: 'center' }}>Live Execution Results</h3>
 
-            {/* Results List */}
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
               {results.length === 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: themeStyles.subText }}>
@@ -398,12 +367,11 @@ export default function App() {
               )}
             </div>
           </div>
-
         </div>
 
       </div>
 
-      {/* Detailed Response Inspector Modal / Popup Panel */}
+      {/* Postman-Style Request/Response Inspector Modal */}
       {selectedItem && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
           <div style={{ backgroundColor: themeStyles.cardBg, border: `1px solid ${themeStyles.border}`, borderRadius: '16px', width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
@@ -419,7 +387,7 @@ export default function App() {
                 <div style={{ padding: '12px', borderRadius: '8px', backgroundColor: themeStyles.inputBg, fontSize: '12px', fontFamily: 'monospace' }}>
                   <div><strong>URL:</strong> {selectedItem.requestDetails?.url}</div>
                   <div><strong>Method:</strong> {selectedItem.requestDetails?.method}</div>
-                  <div style={{ marginTop: '6px' }}><strong>Payload Payload / Iteration Data:</strong></div>
+                  <div style={{ marginTop: '6px' }}><strong>Payload / Iteration Data:</strong></div>
                   <pre style={{ margin: '4px 0 0 0' }}>{JSON.stringify(selectedItem.row, null, 2)}</pre>
                 </div>
               </div>
